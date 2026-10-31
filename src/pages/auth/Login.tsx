@@ -6,7 +6,6 @@ import { useToast } from '@/components/Toast'
 import { signIn } from '@/services/auth'
 import { isEmail } from '@/utils/validators'
 
-// PERHATIKAN KATA "export default" DI SINI:
 export default function Login() {
   const nav = useNavigate()
   const toast = useToast()
@@ -31,7 +30,7 @@ export default function Login() {
 
     if (!r.ok) return setServer(r.message ?? 'Gagal masuk. Periksa email dan kata sandi.')
 
-    toast(r.demo ? 'Masuk (mode demo)' : 'Berhasil masuk!')
+    toast('Berhasil masuk!')
     nav('/dashboard')
   }
 
