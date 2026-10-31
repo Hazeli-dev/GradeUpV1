@@ -17,7 +17,7 @@ export default function DashboardShell({ items, areaLabel, homePath, userName }:
   const current = items.find((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)))
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    await supabase?.auth.signOut()
     navigate('/login')
   }
 
