@@ -5,6 +5,7 @@ import Field from '@/components/Field'
 import { useToast } from '@/components/Toast'
 import { signIn } from '@/services/auth'
 import { isEmail } from '@/utils/validators'
+import { supabase } from '@/lib/supabase'
 
 export default function Login() {
   const nav = useNavigate()
@@ -26,12 +27,26 @@ export default function Login() {
 
     setLoading(true)
     const r = await signIn(email.trim(), password)
+
+    if (!r.ok || !r.data?.user) {
+      setLoading(false)
+      return setServer(r.message ?? 'Gagal masuk. Periksa email dan kata sandi.')
+    }
+
+    // Ambil data role pengguna dari tabel profiles di Supabase
+    const { data: profile } = await supabase
+      ? await supabase.from('profiles').select('role').eq('id', r.data.user.id).single()
+      : { data: null }
+
     setLoading(false)
-
-    if (!r.ok) return setServer(r.message ?? 'Gagal masuk. Periksa email dan kata sandi.')
-
     toast('Berhasil masuk!')
-    nav('/dashboard')
+
+    // Pengalihan berdasarkan role
+    if (profile?.role === 'admin') {
+      nav('/admin')
+    } else {
+      nav('/dashboard')
+    }
   }
 
   return (
