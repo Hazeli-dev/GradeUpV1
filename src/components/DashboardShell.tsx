@@ -5,7 +5,7 @@ import Logo from '@/components/Logo'
 import ThemeToggle from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
 import type { NavItem } from '@/types'
-import { useApp } from '@/context/AppContext'
+import { useApp } from '../context/AppContext'
 
 interface Props { items: NavItem[]; areaLabel: string; homePath: string; userName: string }
 
