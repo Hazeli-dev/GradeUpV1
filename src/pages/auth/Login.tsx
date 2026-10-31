@@ -33,16 +33,25 @@ export default function Login() {
       return setServer(r.message ?? 'Gagal masuk. Periksa email dan kata sandi.')
     }
 
-    // Ambil data role pengguna dari tabel profiles di Supabase
-    const { data: profile } = await supabase
-      ? await supabase.from('profiles').select('role').eq('id', r.data.user.id).single()
-      : { data: null }
+    // Ambil data role pengguna dari tabel profiles di Supabase dengan null safety
+    let userRole = 'student'
+    if (supabase) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', r.data.user.id)
+        .single()
+      
+      if (profile?.role) {
+        userRole = profile.role
+      }
+    }
 
     setLoading(false)
     toast('Berhasil masuk!')
 
     // Pengalihan berdasarkan role
-    if (profile?.role === 'admin') {
+    if (userRole === 'admin') {
       nav('/admin')
     } else {
       nav('/dashboard')
