@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 import Logo from '@/components/Logo'
 import ThemeToggle from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
 import type { NavItem } from '@/types'
-import { useApp } from '../context/AppContext'
 
 interface Props { items: NavItem[]; areaLabel: string; homePath: string; userName: string }
 
@@ -13,8 +12,14 @@ export default function DashboardShell({ items, areaLabel, homePath, userName }:
   const [collapsed, setCollapsed] = useState(false)
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
-  const { logout } = useApp()
+  const nav = useNavigate()
   const current = items.find((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)))
+
+  const handleLogout = () => {
+    // Menghapus sesi atau data login lokal lalu kembali ke halaman utama
+    localStorage.removeItem("gradeup_user");
+    nav("/");
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -47,7 +52,7 @@ export default function DashboardShell({ items, areaLabel, homePath, userName }:
 
         {/* Tombol Keluar (Log Out) */}
         <button
-          onClick={() => logout()}
+          onClick={handleLogout}
           title="Keluar"
           className="mx-3 mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-500/10 transition-colors"
         >
