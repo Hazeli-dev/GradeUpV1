@@ -66,7 +66,7 @@ export default function Overview() {
           <ul className="space-y-3 text-sm">{activities.slice(0, 4).map((a) => <li key={a.id}><p>{a.text}</p><p className="text-xs text-muted">{fmtDate(a.date)}</p></li>)}</ul>
         </div>
         <div className="card p-5">
-          <h3 className="mb-3 text-sm font-bold">Rekomendasi untukmu</h3>
+          <h3 className="mb-3 text-sm font-bold">Rekomendasi Belajar</h3>
           <ul className="space-y-3 text-sm">
             {courses.filter((c) => c.level === student.level || c.level === 'Umum').slice(0, 3).map((c) => (
               <li key={c.id}><Link to={`/dashboard/courses/${c.id}`} className="font-semibold hover:text-primary">{c.title}</Link><p className="text-xs text-muted">{c.category} · {c.lessons} pelajaran</p></li>
