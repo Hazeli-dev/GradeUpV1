@@ -30,14 +30,14 @@ export default function Register() {
     if (Object.keys(er).length) return
 
     setLoading(true)
-    // Urutan parameter disesuaikan dengan auth.ts: (email, password, fullName)
     const r = await signUp(v.email.trim(), v.password, v.name.trim())
     setLoading(false)
 
     if (!r.ok) return setServer(r.message ?? 'Pendaftaran gagal. Coba lagi.')
 
-    toast('Pendaftaran berhasil!')
-    nav(`/verify-email?email=${encodeURIComponent(v.email.trim())}`)
+    // PERBAIKAN: Berikan notifikasi & langsung arahkan ke halaman Login
+    toast('Pendaftaran berhasil! Silakan masuk dengan akun baru Anda.')
+    nav('/login')
   }
 
   return (
