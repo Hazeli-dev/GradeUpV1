@@ -30,13 +30,20 @@ export async function signUp(email: string, password: string, fullName: string) 
   }
 
   try {
+    // 1. Simpan nama lengkap ke user_metadata Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
     })
 
     if (error) return { ok: false, message: error.message }
 
+    // 2. Simpan ke tabel profiles (jika RLS/tabel sudah disiapkan)
     if (data.user) {
       const { error: profileError } = await supabase
         .from('profiles')
@@ -95,7 +102,6 @@ export async function resendVerification(email: string) {
   }
 }
 
-// Tambahan fungsi yang dicari oleh halaman ForgotPassword
 export async function requestPasswordReset(email: string) {
   if (!isSupabaseConfigured || !supabase) {
     return { ok: false, message: 'Supabase belum dikonfigurasi.' }
@@ -103,7 +109,7 @@ export async function requestPasswordReset(email: string) {
 
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/reset-password',
+      redirectTo: `${window.location.origin}/reset-password`,
     })
 
     if (error) return { ok: false, message: error.message }
