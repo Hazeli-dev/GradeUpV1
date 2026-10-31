@@ -19,13 +19,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 1. Ambil sesi pengguna saat pertama kali aplikasi dimuat
     supabase?.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
-    // 2. Dengarkan perubahan status autentikasi (Login/Logout/Register)
     const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       setLoading(false)
@@ -36,11 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Ambil nama lengkap dari metadata Supabase, jika kosong gunakan bagian depan email
-  const userName = 
-    user?.user_metadata?.full_name || 
-    user?.email?.split('@')[0] || 
-    'Pengguna'
+  // Mengambil Nama Lengkap dari user_metadata Supabase Auth
+  const metaName = user?.user_metadata?.full_name || user?.user_metadata?.name
+  const userName = metaName || user?.email?.split('@')[0] || 'Pengguna'
 
   return (
     <AuthContext.Provider value={{ user, userName, loading }}>
