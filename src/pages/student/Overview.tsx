@@ -10,8 +10,8 @@ import { useAuth } from '@/context/AuthContext'
 
 export default function Overview() {
   const { userName } = useAuth()
-  const displayName = userName || student.name
-  const firstName = displayName.split(' ')[0]
+  // Menggunakan nama lengkap langsung dari AuthContext
+  const fullName = userName || student.name
 
   const avg = Math.round(results.reduce((s, r) => s + scoreOf(r.answers).score, 0) / Math.max(results.length, 1))
   const days = ['S', 'S', 'R', 'K', 'J', 'S', 'M']
@@ -21,10 +21,11 @@ export default function Overview() {
       <div className="card flex flex-wrap items-center justify-between gap-4 p-5">
         <div className="flex items-center gap-4">
           <span className="gradient-brand grid h-14 w-14 place-items-center rounded-2xl text-xl font-extrabold text-white">
-            {displayName.charAt(0).toUpperCase()}
+            {fullName.charAt(0).toUpperCase()}
           </span>
           <div>
-            <h1 className="text-xl font-extrabold tracking-tight">Halo, {firstName}!</h1>
+            {/* Menampilkan Nama Lengkap Pendaftaran */}
+            <h1 className="text-xl font-extrabold tracking-tight">Halo, {fullName}!</h1>
             <p className="text-sm text-muted">Jenjang {student.level} · Paket {student.plan}</p>
           </div>
         </div>
