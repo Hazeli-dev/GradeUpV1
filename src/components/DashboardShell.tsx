@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { Menu, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, X } from 'lucide-react'
 import Logo from '@/components/Logo'
 import ThemeToggle from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import type { NavItem } from '@/types'
 
 interface Props { items: NavItem[]; areaLabel: string; homePath: string; userName: string }
@@ -11,8 +12,14 @@ interface Props { items: NavItem[]; areaLabel: string; homePath: string; userNam
 export default function DashboardShell({ items, areaLabel, homePath, userName }: Props) {
   const [collapsed, setCollapsed] = useState(false)
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
   const { pathname } = useLocation()
   const current = items.find((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)))
+
+  async function handleLogout() {
+    await supabase.auth.signOut()
+    navigate('/login')
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -42,6 +49,17 @@ export default function DashboardShell({ items, areaLabel, homePath, userName }:
             </NavLink>
           ))}
         </nav>
+
+        {/* Tombol Keluar */}
+        <button
+          onClick={handleLogout}
+          title="Keluar"
+          className="mx-3 mb-1 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+        >
+          <LogOut size={18} className="shrink-0" />
+          {!collapsed && <span className="truncate">Keluar</span>}
+        </button>
+
         <button
           onClick={() => setCollapsed((c) => !c)}
           className="mx-3 mb-3 hidden items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted hover:bg-soft/60 md:flex"
