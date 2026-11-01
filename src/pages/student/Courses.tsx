@@ -5,7 +5,6 @@ import { categories, levels } from '@/data/demo'
 import { coursesStore, type AdminCourse } from '@/data/admin'
 import { useStore } from '@/lib/store'
 import { CourseCard } from '@/components/CatalogCards'
-import type { Course } from '@/types'
 
 export default function Courses() {
   const nav = useNavigate()
@@ -94,24 +93,13 @@ export default function Courses() {
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((c) => {
-            // Mapping objek AdminCourse ke tipe Course agar sesuai dengan prop CourseCard
-            const courseProp: Course = {
-              id: c.id,
-              title: c.title,
-              category: c.category,
-              level: c.level,
-              lessons: c.lessons,
-            }
-
-            return (
-              <CourseCard
-                key={c.id}
-                course={courseProp}
-                onAction={() => handleAction(c)}
-              />
-            )
-          })}
+          {list.map((c) => (
+            <CourseCard
+              key={c.id}
+              course={c as any}
+              onAction={() => handleAction(c)}
+            />
+          ))}
         </div>
       )}
 
