@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, FileText, Download, Eye, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { categories, levels } from '@/data/demo'
 import { coursesStore, type AdminCourse } from '@/data/admin'
 import { useStore } from '@/lib/store'
 import { CourseCard } from '@/components/CatalogCards'
+import type { Course } from '@/types'
 
 export default function Courses() {
   const nav = useNavigate()
@@ -42,7 +43,6 @@ export default function Courses() {
     } else if (c.content) {
       setSelectedCourse(c)
     } else {
-      // Jika tidak ada isi khusus, navigasi ke rincian detail bawaan
       nav(`/dashboard/courses/${c.id}`)
     }
   }
@@ -94,17 +94,28 @@ export default function Courses() {
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((c) => (
-            <CourseCard
-              key={c.id}
-              course={c}
-              onAction={() => handleAction(c)}
-            />
-          ))}
+          {list.map((c) => {
+            // Mapping objek AdminCourse ke tipe Course agar sesuai dengan prop CourseCard
+            const courseProp: Course = {
+              id: c.id,
+              title: c.title,
+              category: c.category,
+              level: c.level,
+              lessons: c.lessons,
+            }
+
+            return (
+              <CourseCard
+                key={c.id}
+                course={courseProp}
+                onAction={() => handleAction(c)}
+              />
+            )
+          })}
         </div>
       )}
 
-      {/* MODAL BACA TEKS MANUL */}
+      {/* MODAL BACA TEKS MANUAL */}
       {selectedCourse && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
           <div className="card flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden bg-white shadow-xl">
