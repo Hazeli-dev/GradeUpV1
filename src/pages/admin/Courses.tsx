@@ -11,7 +11,6 @@ import { SelectField } from '@/components/SelectField'
 import StatusBadge from '@/components/StatusBadge'
 import { useToast } from '@/components/Toast'
 
-// Kita extend tipe bawaan agar bisa menerima field Kelas & Premium tanpa memodifikasi file admin.ts
 type CourseFormState = AdminCourse & { premium?: boolean; grade?: string }
 
 export default function Courses() {
@@ -46,14 +45,14 @@ export default function Courses() {
         title: '',
         category: catNames[0] ?? '',
         level: 'SMP',
-        grade: '', // Field Kelas baru
+        grade: '',
         lessons: 1,
         status: 'Draf',
         contentType: 'text',
         content: '',
         fileName: '',
         fileUrl: '',
-        premium: false, // Field Akses (Free/Premium)
+        premium: false,
       },
     })
   }
@@ -64,7 +63,7 @@ export default function Courses() {
     const er: Record<string, string> = {}
     if (edit.c.title.trim().length < 3) er.title = 'Judul minimal 3 karakter'
     if (!edit.c.category) er.category = 'Pilih kategori terlebih dahulu'
-    if (!edit.c.grade) er.grade = 'Isi kelas (misal: 10, 11, 12)'
+    if (!edit.c.grade) er.grade = 'Isi kelas (misal: 10)'
     if (!(edit.c.lessons >= 1 && edit.c.lessons <= 100)) er.lessons = 'Isi 1 sampai 100 pelajaran'
     
     if (edit.c.contentType === 'text' && (!edit.c.content || edit.c.content.trim().length < 10)) {
@@ -134,12 +133,12 @@ export default function Courses() {
               <div className="flex items-center justify-between">
                 <p className="text-xs text-muted">{c.lessons} pelajaran</p>
                 {c.contentType === 'file' ? (
-                  <span className="flex items-center gap-1 text-xs font-medium text-blue-600"><File size={14} /> Dokumen</span>
+                  <span className="flex items-center gap-1 text-xs font-medium text-blue-500"><File size={14} /> Dokumen</span>
                 ) : (
-                  <span className="flex items-center gap-1 text-xs font-medium text-emerald-600"><FileText size={14} /> Teks</span>
+                  <span className="flex items-center gap-1 text-xs font-medium text-emerald-500"><FileText size={14} /> Teks</span>
                 )}
               </div>
-              <div className="flex gap-2 border-t border-slate-100 pt-3">
+              <div className="flex gap-2 border-t border-border pt-3">
                 <button
                   className="btn-ghost flex-1 border border-border"
                   onClick={() => { setErr({}); setEdit({ isNew: false, c: { contentType: 'text', premium: false, grade: '', ...c } }) }}
@@ -147,7 +146,7 @@ export default function Courses() {
                   <Pencil size={14} />Ubah
                 </button>
                 <button
-                  className="btn-ghost border border-border text-red-600"
+                  className="btn-ghost border border-border text-red-500"
                   onClick={() => setDel(c)}
                   aria-label={`Hapus ${c.title}`}
                 >
@@ -159,10 +158,10 @@ export default function Courses() {
         </div>
       )}
 
-      {/* MODAL (Diperlebar dengan lg:min-w-[800px]) */}
+      {/* MODAL dengan overflow-y-auto agar tombol Save tidak hilang */}
       <Modal open={edit !== null} onClose={() => setEdit(null)} title={edit?.isNew ? 'Tambah Materi Baru' : 'Ubah Data Materi'}>
         {edit && (
-          <form onSubmit={save} noValidate className="space-y-4 sm:min-w-[500px] lg:min-w-[800px]">
+          <form onSubmit={save} noValidate className="space-y-4 sm:min-w-[500px] lg:min-w-[800px] max-h-[75vh] overflow-y-auto px-1 pb-2">
             <Field label="Judul Materi" name="title" value={edit.c.title} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, title: e.target.value } })} error={err.title} />
             
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -177,43 +176,42 @@ export default function Courses() {
               <SelectField name="status" label="Status Publikasi" value={edit.c.status} options={['Terbit', 'Draf']} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, status: v as AdminCourse['status'] } })} />
             </div>
             
-            {/* TABS TIPE MATERI */}
-            <div className="pt-4 border-t border-slate-200">
-              <label className="mb-3 block text-sm font-bold text-slate-800">Tipe Isi Materi</label>
+            <div className="pt-4 border-t border-border">
+              <label className="mb-3 block text-sm font-bold">Tipe Isi Materi</label>
               <div className="flex gap-4">
                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                  <input type="radio" className="h-4 w-4 text-emerald-600 focus:ring-emerald-600" checked={edit.c.contentType === 'text' || !edit.c.contentType} onChange={() => setEdit({ ...edit, c: { ...edit.c, contentType: 'text' } })} />
+                  <input type="radio" className="h-4 w-4 text-primary focus:ring-primary" checked={edit.c.contentType === 'text' || !edit.c.contentType} onChange={() => setEdit({ ...edit, c: { ...edit.c, contentType: 'text' } })} />
                   Ketik Manual (Teks Lengkap)
                 </label>
                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
-                  <input type="radio" className="h-4 w-4 text-emerald-600 focus:ring-emerald-600" checked={edit.c.contentType === 'file'} onChange={() => setEdit({ ...edit, c: { ...edit.c, contentType: 'file' } })} />
+                  <input type="radio" className="h-4 w-4 text-primary focus:ring-primary" checked={edit.c.contentType === 'file'} onChange={() => setEdit({ ...edit, c: { ...edit.c, contentType: 'file' } })} />
                   Upload Dokumen
                 </label>
               </div>
             </div>
 
-            {/* AREA KERJA EDITOR / UPLOAD */}
+            {/* Editor Teks yang Menyatu dengan Dark Mode */}
             {edit.c.contentType === 'text' || !edit.c.contentType ? (
-              <div className="rounded-xl bg-slate-50 p-2 border border-slate-200">
+              <div className="space-y-1 mt-2">
                 <textarea
-                  className={`w-full rounded-lg min-h-[40vh] resize-y p-6 text-base leading-relaxed text-slate-800 shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 border-0 ${err.content ? 'ring-2 ring-red-500' : ''}`}
-                  placeholder="Ketik isi materi di sini layaknya menggunakan Microsoft Word..."
+                  className={`input w-full rounded-lg min-h-[250px] resize-y p-4 text-base leading-relaxed ${err.content ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                  placeholder="Ketik isi materi di sini..."
                   value={edit.c.content || ''}
                   onChange={(e) => setEdit({ ...edit, c: { ...edit.c, content: e.target.value } })}
                 />
-                {err.content && <p className="mt-1 text-xs text-red-500 px-2">{err.content}</p>}
+                {err.content && <p className="text-xs text-red-500">{err.content}</p>}
               </div>
             ) : (
-              <div className={`relative flex flex-col items-center justify-center w-full min-h-[30vh] border-2 border-dashed rounded-xl bg-slate-50 transition-colors hover:bg-slate-100 ${err.file ? 'border-red-400' : 'border-slate-300'}`}>
-                <UploadCloud className="w-14 h-14 text-slate-400 mb-3" />
-                <p className="text-sm font-medium text-slate-600 mb-1">Pilih atau letakkan file PDF/Word di sini</p>
-                <p className="text-xs text-slate-400 mb-4">Maksimal ukuran file: 10MB</p>
-                <label className="cursor-pointer bg-white border border-slate-300 shadow-sm px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+              <div className={`relative flex flex-col items-center justify-center w-full min-h-[200px] mt-2 border-2 border-dashed rounded-xl transition-colors bg-card hover:bg-muted ${err.file ? 'border-red-500' : 'border-border'}`}>
+                <UploadCloud className="w-14 h-14 text-muted-foreground mb-3" />
+                <p className="text-sm font-medium mb-1">Pilih atau letakkan file PDF/Word di sini</p>
+                <p className="text-xs text-muted-foreground mb-4">Maksimal ukuran file: 10MB</p>
+                <label className="cursor-pointer btn-secondary px-4 py-2 rounded-lg text-sm font-semibold transition">
                   Cari Dokumen
                   <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} className="hidden" />
                 </label>
                 {edit.c.fileName && (
-                  <div className="absolute bottom-4 flex items-center gap-2 rounded-md bg-emerald-100 px-3 py-1.5 text-emerald-800 text-sm font-medium shadow-sm">
+                  <div className="absolute bottom-4 flex items-center gap-2 rounded-md bg-emerald-500/20 px-3 py-1.5 text-emerald-500 border border-emerald-500/30 text-sm font-medium shadow-sm">
                     <File size={16} /> {edit.c.fileName}
                   </div>
                 )}
@@ -221,7 +219,7 @@ export default function Courses() {
               </div>
             )}
 
-            <button className="btn-primary w-full py-3 mt-4 text-base shadow-lg">Simpan Materi</button>
+            <button className="btn-primary w-full py-3 mt-6 text-base">Simpan Materi</button>
           </form>
         )}
       </Modal>
