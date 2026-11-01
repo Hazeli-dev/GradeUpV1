@@ -4,7 +4,6 @@ import ConfirmDialog from '@/components/ConfirmDialog'
 import Field from '@/components/Field'
 import Modal from '@/components/Modal'
 import SearchBox from '@/components/SearchBox'
-import StatusBadge from '@/components/StatusBadge'
 import { useToast } from '@/components/Toast'
 import { isEmail } from '@/utils/validators'
 import { Shield, UserCheck, Award, Calendar } from 'lucide-react'
@@ -51,7 +50,7 @@ export default function Users() {
           if (payload.eventType === 'INSERT') {
             const newUser = payload.new as Profile
             setUsers((prev) => [newUser, ...prev])
-            toast({ title: 'Pengguna baru terdeteksi!', description: newUser.full_name || newUser.email, type: 'info' })
+            toast(`Pengguna baru terdeteksi: ${newUser.full_name || newUser.email}`)
           } else if (payload.eventType === 'UPDATE') {
             const updatedUser = payload.new as Profile
             setUsers((prev) =>
@@ -63,7 +62,7 @@ export default function Users() {
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      supabase?.removeChannel(channel)
     }
   }, [])
 
@@ -76,7 +75,7 @@ export default function Users() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      toast({ title: 'Gagal memuat pengguna', description: error.message, type: 'error' })
+      toast(`Gagal memuat pengguna: ${error.message}`)
     } else {
       setUsers(data || [])
     }
@@ -86,14 +85,14 @@ export default function Users() {
   // Filter pencarian & status
   const list = useMemo(() => {
     return users.filter((u) => {
-      const matchQuery = (u.full_name + ' ' + u.email).toLowerCase().includes(q.trim().toLowerCase())
+      const matchQuery = ((u.full_name || '') + ' ' + (u.email || '')).toLowerCase().includes(q.trim().toLowerCase())
       const matchPlan = !planFilter || u.plan === planFilter
       const matchRole = !roleFilter || u.role === roleFilter
       return matchQuery && matchPlan && matchRole
     })
   }, [users, q, planFilter, roleFilter])
 
-  // Simpan perubahan profil dasar (nama/email)
+  // Simpan perubahan profil dasar (nama)
   async function save(e: FormEvent) {
     e.preventDefault()
     if (!draft || !supabase) return
@@ -109,11 +108,11 @@ export default function Users() {
       .eq('id', draft.id)
 
     if (error) {
-      toast({ title: 'Gagal memperbarui', description: error.message, type: 'error' })
+      toast(`Gagal memperbarui: ${error.message}`)
       return
     }
 
-    toast({ title: 'Profil pengguna diperbarui', type: 'success' })
+    toast('Profil pengguna diperbarui')
     setDraft(null)
     fetchUsers()
   }
@@ -140,9 +139,9 @@ export default function Users() {
       .eq('id', draft.id)
 
     if (error) {
-      toast({ title: 'Gagal atur paket', description: error.message, type: 'error' })
+      toast(`Gagal atur paket: ${error.message}`)
     } else {
-      toast({ title: 'Paket Premium diaktifkan!', description: `Masa aktif hingga ${now.toLocaleDateString('id-ID')}`, type: 'success' })
+      toast(`Paket Premium diaktifkan hingga ${now.toLocaleDateString('id-ID')}`)
       setDraft(null)
       fetchUsers()
     }
@@ -161,9 +160,9 @@ export default function Users() {
       .eq('id', draft.id)
 
     if (error) {
-      toast({ title: 'Gagal mengubah paket', description: error.message, type: 'error' })
+      toast(`Gagal mengubah paket: ${error.message}`)
     } else {
-      toast({ title: 'Paket diubah menjadi Free', type: 'info' })
+      toast('Paket diubah menjadi Free')
       setDraft(null)
       fetchUsers()
     }
