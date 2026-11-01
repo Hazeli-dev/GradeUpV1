@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent, type ChangeEvent } from 'react'
 import { BookOpen, Pencil, Trash2, FileText, File, UploadCloud, Star, Eye } from 'lucide-react'
 import { categoriesStore, coursesStore, type AdminCourse } from '@/data/admin'
 import { levels } from '@/data/demo'
@@ -22,8 +22,8 @@ export default function Courses() {
   const [status, setStatus] = useState('')
   
   const [edit, setEdit] = useState<{ c: CourseFormState; isNew: boolean } | null>(null)
-  const [preview, setPreview] = useState<CourseFormState null |>(null)
-  const [del, setDel] = useState<CourseFormState null |>(null)
+  const [preview, setPreview] = useState<CourseFormState | null>(null)
+  const [del, setDel] = useState<CourseFormState | null>(null)
   const [err, setErr] = useState<Record<string, string>>({})
 
   const list = useMemo(
@@ -85,11 +85,11 @@ export default function Courses() {
     setEdit(null)
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const fakeUrl = URL.createObjectURL(file)
-      setEdit((prev) => prev ? { ...prev, c: { ...prev.c, fileName: file.name, fileUrl: fakeUrl } } : null)
+      setEdit((prev) => (prev ? { ...prev, c: { ...prev.c, fileName: file.name, fileUrl: fakeUrl } } : null))
     }
   }
 
@@ -101,7 +101,7 @@ export default function Courses() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-[1fr_200px_150px]">
-        <SearchBox onChange="{setQ}" placeholder="Cari judul materi..." value="{q}"/>
+        <SearchBox value={q} onChange={setQ} placeholder="Cari judul materi..." />
         <select className="input" value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Kategori">
           <option value="">Semua kategori</option>
           {catNames.map((c) => <option key={c}>{c}</option>)}
@@ -121,23 +121,23 @@ export default function Courses() {
             <div key={c.id} className="card flex flex-col gap-3 p-4 relative overflow-hidden">
               {c.premium && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 rounded bg-amber-400 px-2 py-1 text-[10px] font-bold text-amber-950 shadow-sm z-10">
-                  <Star className="fill-amber-950" size="{10}"/> PREMIUM
+                  <Star size={10} className="fill-amber-950" /> PREMIUM
                 </div>
               )}
               <div className="gradient-brand grid h-24 place-items-center rounded-xl text-white/90">
-                <BookOpen size="{30}"/>
+                <BookOpen size={30} />
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold text-primary">{c.category} · {c.level} (Kelas {c.grade || '-'})</p>
-                <StatusBadge label="{c.status}"/>
+                <StatusBadge label={c.status} />
               </div>
               <h3 className="flex-1 font-bold leading-snug">{c.title}</h3>
               <div className="flex items-center justify-between">
                 <p className="text-xs text-muted">{c.lessons} pelajaran</p>
                 {c.contentType === 'file' ? (
-                  <span className="flex items-center gap-1 text-xs font-medium text-blue-500"><File size="{14}"/> Dokumen</span>
+                  <span className="flex items-center gap-1 text-xs font-medium text-blue-500"><File size={14} /> Dokumen</span>
                 ) : (
-                  <span className="flex items-center gap-1 text-xs font-medium text-emerald-500"><FileText size="{14}"/> Teks</span>
+                  <span className="flex items-center gap-1 text-xs font-medium text-emerald-500"><FileText size={14} /> Teks</span>
                 )}
               </div>
               
@@ -146,20 +146,20 @@ export default function Courses() {
                   className="btn-ghost flex-1 border border-border text-blue-500"
                   onClick={() => setPreview(c)}
                 >
-                  <Eye size="{14}"/>Lihat
+                  <Eye size={14} />Lihat
                 </button>
                 <button
                   className="btn-ghost flex-1 border border-border"
                   onClick={() => { setErr({}); setEdit({ isNew: false, c: { contentType: 'text', premium: false, grade: '', ...c } }) }}
                 >
-                  <Pencil size="{14}"/>Ubah
+                  <Pencil size={14} />Ubah
                 </button>
                 <button
                   className="btn-ghost w-10 border border-border text-red-500 flex items-center justify-center"
                   onClick={() => setDel(c)}
                   aria-label={`Hapus ${c.title}`}
                 >
-                  <Trash2 size="{14}"/>
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>
@@ -167,7 +167,8 @@ export default function Courses() {
         </div>
       )}
 
-      <Modal !="=" null} onClose="{()" open="{preview"> setPreview(null)} title="Preview Tampilan Materi">
+      {/* MODAL PREVIEW MATERI */}
+      <Modal open={preview !== null} onClose={() => setPreview(null)} title="Preview Tampilan Materi">
         {preview && (
           <div className="space-y-4 w-full max-h-[75vh] overflow-y-auto px-2 py-1">
             <div className="border-b border-border pb-4">
@@ -177,7 +178,7 @@ export default function Courses() {
                 <span className="bg-muted px-2 py-1 rounded font-medium">{preview.level} {preview.grade ? `(Kelas ${preview.grade})` : ''}</span>
                 {preview.premium && (
                   <span className="bg-amber-400/20 text-amber-600 px-2 py-1 rounded font-bold flex items-center gap-1">
-                    <Star size="{12}"/> Premium
+                    <Star size={12} /> Premium
                   </span>
                 )}
               </div>
@@ -185,7 +186,7 @@ export default function Courses() {
             <div className="pt-2">
               {preview.contentType === 'file' ? (
                 <div className="flex flex-col items-center justify-center p-8 border border-dashed border-border rounded-xl bg-muted/30">
-                  <File className="text-blue-500 mb-3" size="{40}"/>
+                  <File size={40} className="text-blue-500 mb-3" />
                   <p className="font-semibold text-sm mb-4">{preview.fileName}</p>
                   {preview.fileUrl ? (
                     <a href={preview.fileUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm px-6 py-2">
@@ -205,18 +206,19 @@ export default function Courses() {
         )}
       </Modal>
 
-      <Modal !="=" null} onClose="{()" open="{edit"> setEdit(null)} title={edit?.isNew ? 'Tambah Materi Baru' : 'Ubah Data Materi'}>
+      {/* MODAL FORM TAMBAH/UBAH */}
+      <Modal open={edit !== null} onClose={() => setEdit(null)} title={edit?.isNew ? 'Tambah Materi Baru' : 'Ubah Data Materi'}>
         {edit && (
           <form onSubmit={save} noValidate className="space-y-4 w-full max-h-[75vh] overflow-y-auto px-2 py-1">
-            <Field label="Judul Materi" name="title" onChange="{(e)" value="{edit.c.title}"> setEdit({ ...edit, c: { ...edit.c, title: e.target.value } })} error={err.title} />
+            <Field label="Judul Materi" name="title" value={edit.c.title} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, title: e.target.value } })} error={err.title} />
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <SelectField label="Kategori" name="category" onChange="{(v)" options="{catNames}" value="{edit.c.category}"> setEdit({ ...edit, c: { ...edit.c, category: v } })} />
-              <SelectField label="Jenjang" name="level" onChange="{(v)" options="{levels}" value="{edit.c.level}"> setEdit({ ...edit, c: { ...edit.c, level: v as AdminCourse['level'] } })} />
-              <Field ''} label="Kelas (Misal: 10)" name="grade" onChange="{(e)" value="{edit.c.grade" ||> setEdit({ ...edit, c: { ...edit.c, grade: e.target.value } })} error={err.grade} />
-              <SelectField 'Gratis'} 'Premium' 'Premium']} : ? label="Akses Paket" name="access" onChange="{(v)" options="{['Gratis'," value="{edit.c.premium"> setEdit({ ...edit, c: { ...edit.c, premium: v === 'Premium' } })} />
-              <Field label="Jumlah Pelajaran / Bab" name="lessons" onChange="{(e)" type="number" value="{edit.c.lessons}"> setEdit({ ...edit, c: { ...edit.c, lessons: Number(e.target.value) } })} error={err.lessons} />
-              <SelectField 'Draf']} label="Status Publikasi" name="status" onChange="{(v)" options="{['Terbit'," value="{edit.c.status}"> setEdit({ ...edit, c: { ...edit.c, status: v as AdminCourse['status'] } })} />
+              <SelectField label="Kategori" name="category" value={edit.c.category} options={catNames} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, category: v } })} />
+              <SelectField label="Jenjang" name="level" value={edit.c.level} options={levels} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, level: v as AdminCourse['level'] } })} />
+              <Field label="Kelas (Misal: 10)" name="grade" value={edit.c.grade || ''} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, grade: e.target.value } })} error={err.grade} />
+              <SelectField label="Akses Paket" name="access" value={edit.c.premium ? 'Premium' : 'Gratis'} options={['Gratis', 'Premium']} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, premium: v === 'Premium' } })} />
+              <Field label="Jumlah Pelajaran / Bab" name="lessons" type="number" value={edit.c.lessons} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, lessons: Number(e.target.value) } })} error={err.lessons} />
+              <SelectField label="Status Publikasi" name="status" value={edit.c.status} options={['Terbit', 'Draf']} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, status: v as AdminCourse['status'] } })} />
             </div>
             
             <div className="pt-4 border-t border-border">
@@ -245,7 +247,7 @@ export default function Courses() {
               </div>
             ) : (
               <div className={`relative flex flex-col items-center justify-center w-full min-h-[160px] mt-2 border-2 border-dashed rounded-xl transition-colors bg-card hover:bg-muted ${err.file ? 'border-red-500' : 'border-border'}`}>
-                <UploadCloud className="w-10 h-10 text-muted-foreground mb-2"/>
+                <UploadCloud className="w-10 h-10 text-muted-foreground mb-2" />
                 <p className="text-sm font-medium mb-1">Pilih / letakkan file PDF</p>
                 <p className="text-xs text-muted-foreground mb-3">Maks: 10MB</p>
                 <label className="cursor-pointer btn-secondary px-3 py-1.5 rounded-lg text-sm font-semibold transition">
@@ -254,7 +256,7 @@ export default function Courses() {
                 </label>
                 {edit.c.fileName && (
                   <div className="absolute bottom-2 flex items-center gap-2 rounded-md bg-emerald-500/20 px-2 py-1 text-emerald-500 border border-emerald-500/30 text-xs font-medium shadow-sm">
-                    <File size="{14}"/> {edit.c.fileName}
+                    <File size={14} /> {edit.c.fileName}
                   </div>
                 )}
                 {err.file && <p className="absolute bottom-1 text-xs text-red-500">{err.file}</p>}
@@ -266,7 +268,9 @@ export default function Courses() {
         )}
       </Modal>
 
-      <ConfirmDialog !="=" null} onClose="{()" open="{del"> setDel(null)}
+      <ConfirmDialog
+        open={del !== null}
+        onClose={() => setDel(null)}
         danger
         title="Hapus materi?"
         confirmLabel="Hapus"
