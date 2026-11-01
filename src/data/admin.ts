@@ -5,7 +5,21 @@ import { createStore } from '@/lib/store'
 import type { Level } from '@/types'
 
 export interface AdminUser { id: string; name: string; email: string; level: Level; plan: 'Gratis' | 'Premium'; status: 'Aktif' | 'Ditangguhkan'; joined: string }
-export interface AdminCourse { id: string; title: string; category: string; level: Level; lessons: number; status: 'Terbit' | 'Draf' }
+
+// Interface AdminCourse yang sudah dilengkapi fitur Teks Manual & Upload File
+export interface AdminCourse { 
+  id: string; 
+  title: string; 
+  category: string; 
+  level: Level; 
+  lessons: number; 
+  status: 'Terbit' | 'Draf';
+  contentType: 'text' | 'file';
+  content?: string;
+  fileName?: string;
+  fileUrl?: string;
+}
+
 export interface Category { id: string; name: string; description: string }
 export interface AdminExam { id: string; title: string; level: Level; questions: number; minutes: number; premium: boolean; status: 'Terbit' | 'Draf' }
 export interface BankQuestion { id: string; subject: string; difficulty: 'Mudah' | 'Sedang' | 'Sulit'; text: string; options: string[]; correct: number; explanation: string }
@@ -20,7 +34,21 @@ export const usersStore = createStore<AdminUser>(names.map((n, i) => ({
 })))
 
 export const categoriesStore = createStore<Category>(baseCats.map((c, i) => ({ id: `k${i + 1}`, name: c, description: `Kumpulan materi ${c.toLowerCase()} untuk berbagai jenjang.` })))
-export const coursesStore = createStore<AdminCourse>(baseCourses.map((c, i) => ({ id: c.id, title: c.title, category: c.category, level: c.level, lessons: c.lessons, status: i === 4 || i === 7 ? 'Draf' : 'Terbit' })))
+
+// Store courses yang sudah dipetakan dengan field baru untuk sinkronisasi
+export const coursesStore = createStore<AdminCourse>(baseCourses.map((c, i) => ({ 
+  id: c.id, 
+  title: c.title, 
+  category: c.category, 
+  level: c.level, 
+  lessons: c.lessons, 
+  status: i === 4 || i === 7 ? 'Draf' : 'Terbit',
+  contentType: 'text',
+  content: `Ini adalah ringkasan bacaan untuk materi ${c.title}.`,
+  fileName: '',
+  fileUrl: ''
+})))
+
 export const examsStore = createStore<AdminExam>(baseExams.map((e, i) => ({ id: e.id, title: e.title, level: e.level, questions: e.questions, minutes: e.minutes, premium: e.premium, status: i === 5 ? 'Draf' : 'Terbit' })))
 const diffs: BankQuestion['difficulty'][] = ['Mudah', 'Sedang', 'Mudah', 'Mudah', 'Sedang', 'Mudah', 'Sedang', 'Sedang', 'Mudah', 'Sulit']
 export const bankStore = createStore<BankQuestion>(baseQs.map((q, i) => ({ id: q.id, subject: q.subject, difficulty: diffs[i], text: q.text, options: q.options, correct: q.correct, explanation: q.explanation })))
