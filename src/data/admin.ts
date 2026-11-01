@@ -6,7 +6,7 @@ import type { Level } from '@/types'
 
 export interface AdminUser { id: string; name: string; email: string; level: Level; plan: 'Gratis' | 'Premium'; status: 'Aktif' | 'Ditangguhkan'; joined: string }
 
-// Interface AdminCourse yang sudah dilengkapi fitur Teks Manual & Upload File
+// AdminCourse dengan contentType opsional (?) agar tidak error TS2741
 export interface AdminCourse { 
   id: string; 
   title: string; 
@@ -14,7 +14,7 @@ export interface AdminCourse {
   level: Level; 
   lessons: number; 
   status: 'Terbit' | 'Draf';
-  contentType: 'text' | 'file';
+  contentType?: 'text' | 'file';
   content?: string;
   fileName?: string;
   fileUrl?: string;
@@ -35,7 +35,6 @@ export const usersStore = createStore<AdminUser>(names.map((n, i) => ({
 
 export const categoriesStore = createStore<Category>(baseCats.map((c, i) => ({ id: `k${i + 1}`, name: c, description: `Kumpulan materi ${c.toLowerCase()} untuk berbagai jenjang.` })))
 
-// Store courses yang sudah dipetakan dengan field baru untuk sinkronisasi
 export const coursesStore = createStore<AdminCourse>(baseCourses.map((c, i) => ({ 
   id: c.id, 
   title: c.title, 
