@@ -1,10 +1,9 @@
 import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Area, AreaChart } from 'recharts'
-import { ClipboardCheck, Crown, Users, Wallet, ArrowUpRight, Sparkles, TrendingUp } from 'lucide-react'
+import { ClipboardCheck, Crown, Users, Wallet, Sparkles, TrendingUp } from 'lucide-react'
 import { monthly, revenueByPlan, trxStore, usersStore, visitors } from '@/data/admin'
 import { useStore } from '@/lib/store'
-import StatCard from '@/components/StatCard'
 import StatusBadge from '@/components/StatusBadge'
-import ChartCard, { axisProps, chartColors, tooltipStyle } from '@/components/ChartCard'
+import { axisProps, chartColors, tooltipStyle } from '@/components/ChartCard'
 import { fmtDate, rupiah } from '@/utils/format'
 
 const grid = <CartesianGrid stroke="#94a3b8" strokeOpacity={0.15} vertical={false} />
@@ -20,7 +19,7 @@ export default function Overview() {
   return (
     <div className="mx-auto max-w-7xl space-y-8 p-4 md:p-8 bg-[#F8FAFC] min-h-screen">
       
-      {/* HEADER SECTION DENGAN AKSI UTAMA */}
+      {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -41,7 +40,7 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* STAT CARDS DENGAN VARIASI WARNA & TAMPILAN MODERN */}
+      {/* STAT CARDS */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all">
           <div className="flex items-center justify-between mb-3">
@@ -84,7 +83,7 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* GRAFIK UTAMA (CHART SECTION) */}
+      {/* GRAFIK UTAMA */}
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -120,7 +119,7 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* GRAFIK AREA TREN TAHUNAN */}
+      {/* GRAFIK AREA */}
       <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-bold text-slate-800">Pertumbuhan Pengguna Baru (12 Bulan)</h3>
@@ -139,10 +138,8 @@ export default function Overview() {
         </div>
       </div>
 
-      {/* LIST AKTIVITAS TERBARU (LIST SECTION) */}
+      {/* LIST AKTIVITAS */}
       <div className="grid gap-6 lg:grid-cols-2">
-        
-        {/* Pendaftaran Terbaru */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-slate-800">Pendaftaran Terbaru</h3>
@@ -166,7 +163,6 @@ export default function Overview() {
           </ul>
         </div>
 
-        {/* Transaksi Terbaru */}
         <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-slate-800">Transaksi Terbaru</h3>
@@ -189,7 +185,6 @@ export default function Overview() {
             ))}
           </ul>
         </div>
-
       </div>
 
       <div className="text-center pt-2 pb-4">
