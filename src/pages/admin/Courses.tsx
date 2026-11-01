@@ -62,9 +62,9 @@ export default function Courses() {
     if (!edit) return
     const er: Record<string, string> = {}
     if (edit.c.title.trim().length < 3) er.title = 'Judul minimal 3 karakter'
-    if (!edit.c.category) er.category = 'Pilih kategori terlebih dahulu'
-    if (!edit.c.grade) er.grade = 'Isi kelas (misal: 10)'
-    if (!(edit.c.lessons >= 1 && edit.c.lessons <= 100)) er.lessons = 'Isi 1 sampai 100 pelajaran'
+    if (!edit.c.category) er.category = 'Pilih kategori'
+    if (!edit.c.grade) er.grade = 'Isi kelas'
+    if (!(edit.c.lessons >= 1 && edit.c.lessons <= 100)) er.lessons = 'Isi 1 - 100'
     
     if (edit.c.contentType === 'text' && (!edit.c.content || edit.c.content.trim().length < 10)) {
       er.content = 'Materi teks minimal 10 karakter'
@@ -79,7 +79,7 @@ export default function Courses() {
     const finalData = edit.isNew ? [edit.c, ...courses] : courses.map((x) => (x.id === edit.c.id ? edit.c : x))
     coursesStore.set(finalData as AdminCourse[])
     
-    toast(edit.isNew ? 'Materi berhasil ditambahkan' : 'Materi berhasil diperbarui')
+    toast(edit.isNew ? 'Materi ditambahkan' : 'Materi diperbarui')
     setEdit(null)
   }
 
@@ -158,20 +158,17 @@ export default function Courses() {
         </div>
       )}
 
-      {/* MODAL dengan overflow-y-auto agar tombol Save tidak hilang */}
+      {/* FORM MODAL DIPERBAIKI: Dibuat w-full tanpa paksaan min-w, grid disesuaikan */}
       <Modal open={edit !== null} onClose={() => setEdit(null)} title={edit?.isNew ? 'Tambah Materi Baru' : 'Ubah Data Materi'}>
         {edit && (
-          <form onSubmit={save} noValidate className="space-y-4 sm:min-w-[500px] lg:min-w-[800px] max-h-[75vh] overflow-y-auto px-1 pb-2">
+          <form onSubmit={save} noValidate className="space-y-4 w-full max-h-[75vh] overflow-y-auto px-2 py-1">
             <Field label="Judul Materi" name="title" value={edit.c.title} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, title: e.target.value } })} error={err.title} />
             
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <SelectField name="category" label="Kategori" value={edit.c.category} options={catNames} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, category: v } })} />
               <SelectField name="level" label="Jenjang" value={edit.c.level} options={levels} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, level: v as AdminCourse['level'] } })} />
               <Field label="Kelas (Misal: 10)" name="grade" value={edit.c.grade || ''} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, grade: e.target.value } })} error={err.grade} />
               <SelectField name="access" label="Akses Paket" value={edit.c.premium ? 'Premium' : 'Gratis'} options={['Gratis', 'Premium']} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, premium: v === 'Premium' } })} />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
               <Field label="Jumlah Pelajaran / Bab" name="lessons" type="number" value={edit.c.lessons} onChange={(e) => setEdit({ ...edit, c: { ...edit.c, lessons: Number(e.target.value) } })} error={err.lessons} />
               <SelectField name="status" label="Status Publikasi" value={edit.c.status} options={['Terbit', 'Draf']} onChange={(v) => setEdit({ ...edit, c: { ...edit.c, status: v as AdminCourse['status'] } })} />
             </div>
@@ -181,7 +178,7 @@ export default function Courses() {
               <div className="flex gap-4">
                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
                   <input type="radio" className="h-4 w-4 text-primary focus:ring-primary" checked={edit.c.contentType === 'text' || !edit.c.contentType} onChange={() => setEdit({ ...edit, c: { ...edit.c, contentType: 'text' } })} />
-                  Ketik Manual (Teks Lengkap)
+                  Ketik Manual (Teks)
                 </label>
                 <label className="flex cursor-pointer items-center gap-2 text-sm font-medium">
                   <input type="radio" className="h-4 w-4 text-primary focus:ring-primary" checked={edit.c.contentType === 'file'} onChange={() => setEdit({ ...edit, c: { ...edit.c, contentType: 'file' } })} />
@@ -190,11 +187,10 @@ export default function Courses() {
               </div>
             </div>
 
-            {/* Editor Teks yang Menyatu dengan Dark Mode */}
             {edit.c.contentType === 'text' || !edit.c.contentType ? (
               <div className="space-y-1 mt-2">
                 <textarea
-                  className={`input w-full rounded-lg min-h-[250px] resize-y p-4 text-base leading-relaxed ${err.content ? 'border-red-500 ring-1 ring-red-500' : ''}`}
+                  className={`input w-full rounded-lg min-h-[200px] resize-y p-3 text-sm leading-relaxed ${err.content ? 'border-red-500 ring-1 ring-red-500' : ''}`}
                   placeholder="Ketik isi materi di sini..."
                   value={edit.c.content || ''}
                   onChange={(e) => setEdit({ ...edit, c: { ...edit.c, content: e.target.value } })}
@@ -202,24 +198,24 @@ export default function Courses() {
                 {err.content && <p className="text-xs text-red-500">{err.content}</p>}
               </div>
             ) : (
-              <div className={`relative flex flex-col items-center justify-center w-full min-h-[200px] mt-2 border-2 border-dashed rounded-xl transition-colors bg-card hover:bg-muted ${err.file ? 'border-red-500' : 'border-border'}`}>
-                <UploadCloud className="w-14 h-14 text-muted-foreground mb-3" />
-                <p className="text-sm font-medium mb-1">Pilih atau letakkan file PDF/Word di sini</p>
-                <p className="text-xs text-muted-foreground mb-4">Maksimal ukuran file: 10MB</p>
-                <label className="cursor-pointer btn-secondary px-4 py-2 rounded-lg text-sm font-semibold transition">
+              <div className={`relative flex flex-col items-center justify-center w-full min-h-[160px] mt-2 border-2 border-dashed rounded-xl transition-colors bg-card hover:bg-muted ${err.file ? 'border-red-500' : 'border-border'}`}>
+                <UploadCloud className="w-10 h-10 text-muted-foreground mb-2" />
+                <p className="text-sm font-medium mb-1">Pilih / letakkan file PDF</p>
+                <p className="text-xs text-muted-foreground mb-3">Maks: 10MB</p>
+                <label className="cursor-pointer btn-secondary px-3 py-1.5 rounded-lg text-sm font-semibold transition">
                   Cari Dokumen
                   <input type="file" accept=".pdf,.doc,.docx" onChange={handleFileUpload} className="hidden" />
                 </label>
                 {edit.c.fileName && (
-                  <div className="absolute bottom-4 flex items-center gap-2 rounded-md bg-emerald-500/20 px-3 py-1.5 text-emerald-500 border border-emerald-500/30 text-sm font-medium shadow-sm">
-                    <File size={16} /> {edit.c.fileName}
+                  <div className="absolute bottom-2 flex items-center gap-2 rounded-md bg-emerald-500/20 px-2 py-1 text-emerald-500 border border-emerald-500/30 text-xs font-medium shadow-sm">
+                    <File size={14} /> {edit.c.fileName}
                   </div>
                 )}
                 {err.file && <p className="absolute bottom-1 text-xs text-red-500">{err.file}</p>}
               </div>
             )}
 
-            <button className="btn-primary w-full py-3 mt-6 text-base">Simpan Materi</button>
+            <button className="btn-primary w-full py-2.5 mt-4 text-sm">Simpan Materi</button>
           </form>
         )}
       </Modal>
