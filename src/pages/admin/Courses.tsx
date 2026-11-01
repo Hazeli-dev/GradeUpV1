@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { BookOpen, Pencil, Trash2, FileText, File, UploadCloud, Star } from 'lucide-react'
+import { BookOpen, Pencil, Trash2, FileText, File, UploadCloud, Star, Eye } from 'lucide-react'
 import { categoriesStore, coursesStore, type AdminCourse } from '@/data/admin'
 import { levels } from '@/data/demo'
 import { uid, useStore } from '@/lib/store'
@@ -20,9 +20,11 @@ export default function Courses() {
   const [q, setQ] = useState('')
   const [cat, setCat] = useState('')
   const [status, setStatus] = useState('')
+  
   const [edit, setEdit] = useState<{ c: CourseFormState; isNew: boolean } | null>(null)
-  const [err, setErr] = useState<Record<string, string>>({})
+  const [preview, setPreview] = useState<CourseFormState | null>(null)
   const [del, setDel] = useState<CourseFormState | null>(null)
+  const [err, setErr] = useState<Record<string, string>>({})
 
   const list = useMemo(
     () =>
@@ -138,7 +140,15 @@ export default function Courses() {
                   <span className="flex items-center gap-1 text-xs font-medium text-emerald-500"><FileText size={14} /> Teks</span>
                 )}
               </div>
+              
+              {/* TOMBOL ACTION DENGAN PREVIEW */}
               <div className="flex gap-2 border-t border-border pt-3">
+                <button
+                  className="btn-ghost flex-1 border border-border text-blue-500"
+                  onClick={() => setPreview(c)}
+                >
+                  <Eye size={14} />Lihat
+                </button>
                 <button
                   className="btn-ghost flex-1 border border-border"
                   onClick={() => { setErr({}); setEdit({ isNew: false, c: { contentType: 'text', premium: false, grade: '', ...c } }) }}
@@ -146,7 +156,7 @@ export default function Courses() {
                   <Pencil size={14} />Ubah
                 </button>
                 <button
-                  className="btn-ghost border border-border text-red-500"
+                  className="btn-ghost w-10 border border-border text-red-500 flex items-center justify-center"
                   onClick={() => setDel(c)}
                   aria-label={`Hapus ${c.title}`}
                 >
@@ -158,7 +168,46 @@ export default function Courses() {
         </div>
       )}
 
-      {/* FORM MODAL DIPERBAIKI: Dibuat w-full tanpa paksaan min-w, grid disesuaikan */}
+      {/* MODAL PREVIEW MATERI */}
+      <Modal open={preview !== null} onClose={() => setPreview(null)} title="Preview Tampilan Materi">
+        {preview && (
+          <div className="space-y-4 w-full max-h-[75vh] overflow-y-auto px-2 py-1">
+            <div className="border-b border-border pb-4">
+              <h2 className="text-xl font-bold text-foreground">{preview.title}</h2>
+              <div className="flex flex-wrap gap-2 mt-3 text-xs">
+                <span className="bg-primary/10 text-primary px-2 py-1 rounded font-medium">{preview.category}</span>
+                <span className="bg-muted px-2 py-1 rounded font-medium">{preview.level} {preview.grade ? `(Kelas ${preview.grade})` : ''}</span>
+                {preview.premium && (
+                  <span className="bg-amber-400/20 text-amber-600 px-2 py-1 rounded font-bold flex items-center gap-1">
+                    <Star size={12} /> Premium
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="pt-2">
+              {preview.contentType === 'file' ? (
+                <div className="flex flex-col items-center justify-center p-8 border border-dashed border-border rounded-xl bg-muted/30">
+                  <File size={40} className="text-blue-500 mb-3" />
+                  <p className="font-semibold text-sm mb-4">{preview.fileName}</p>
+                  {preview.fileUrl ? (
+                    <a href={preview.fileUrl} target="_blank" rel="noreferrer" className="btn-primary text-sm px-6 py-2">
+                      Buka File Dokumen
+                    </a>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">File belum diunggah</p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-xl p-5 min-h-[200px] whitespace-pre-wrap text-sm leading-relaxed text-foreground shadow-sm">
+                  {preview.content || <span className="text-muted-foreground italic">Isi materi masih kosong...</span>}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* MODAL FORM TAMBAH/UBAH */}
       <Modal open={edit !== null} onClose={() => setEdit(null)} title={edit?.isNew ? 'Tambah Materi Baru' : 'Ubah Data Materi'}>
         {edit && (
           <form onSubmit={save} noValidate className="space-y-4 w-full max-h-[75vh] overflow-y-auto px-2 py-1">
@@ -225,16 +274,3 @@ export default function Courses() {
         onClose={() => setDel(null)}
         danger
         title="Hapus materi?"
-        confirmLabel="Hapus"
-        message={`“${del?.title ?? ''}” akan dihapus secara permanen.`}
-        onConfirm={() => {
-          if (del) {
-            const newCourses = courses.filter((x) => x.id !== del.id)
-            coursesStore.set(newCourses as AdminCourse[])
-            toast('Materi dihapus')
-          }
-        }}
-      />
-    </div>
-  )
-}
